@@ -45,6 +45,14 @@ class CircularMenu extends StatefulWidget {
   /// ending angle in clockwise radian
   final double? endingAngleInRadian;
 
+  /// X translation
+  final double xTranslation;
+
+  /// Y translation
+  final double yTranslation;
+
+  bool reverseAnimation;
+
   /// creates a circular menu with specific [radius] and [alignment] .
   /// [toggleButtonElevation] ,[toggleButtonPadding] and [toggleButtonMargin] must be
   /// equal or greater than zero.
@@ -68,7 +76,11 @@ class CircularMenu extends StatefulWidget {
     this.key,
     this.startingAngleInRadian,
     this.endingAngleInRadian,
-  })  : assert(items.isNotEmpty, 'items can not be empty list'),
+    this.xTranslation = 0,
+    this.yTranslation = 0,
+    this.reverseAnimation = false,
+  })
+      : assert(items.isNotEmpty, 'items can not be empty list'),
         assert(items.length > 1, 'if you have one item no need to use a Menu'),
         super(key: key);
 
@@ -98,11 +110,11 @@ class CircularMenuState extends State<CircularMenu>
 
   @override
   void initState() {
-    _configure();
     _animationController = AnimationController(
       vsync: this,
       duration: widget.animationDuration,
-    )..addListener(() {
+    )
+      ..addListener(() {
         setState(() {});
       });
     _animation = Tween(begin: 0.0, end: 1.0).animate(
@@ -112,10 +124,15 @@ class CircularMenuState extends State<CircularMenu>
           reverseCurve: widget.reverseCurve),
     );
     _itemsCount = widget.items.length;
+    _configure();
     super.initState();
   }
 
   void _configure() {
+    if (widget.reverseAnimation) {
+      reverseAnimation();
+      widget.reverseAnimation = false;
+    }
     if (widget.startingAngleInRadian != null ||
         widget.endingAngleInRadian != null) {
       if (widget.startingAngleInRadian == null) {
@@ -198,18 +215,20 @@ class CircularMenuState extends State<CircularMenu>
           child: Align(
             alignment: widget.alignment,
             child: Transform.translate(
-              offset: Offset.fromDirection(
-                  _completeAngle == (2 * math.pi)
-                      ? (_initialAngle +
-                          (_completeAngle! / (_itemsCount)) * index)
-                      : (_initialAngle +
-                          (_completeAngle! / (_itemsCount - 1)) * index),
-                  _animation.value * widget.radius),
-              child: Transform.scale(
-                scale: _animation.value,
-                child: Transform.rotate(
-                  angle: _animation.value * (math.pi * 2),
-                  child: item,
+              offset: Offset(_animation.value * widget.xTranslation,
+                  _animation.value * widget.yTranslation),
+              child: Transform.translate(
+                offset: Offset.fromDirection(
+                    _completeAngle == (2 * math.pi)
+                        ? (_initialAngle +
+                        (_completeAngle! / (_itemsCount)) * index)
+                        : (_initialAngle +
+                        (_completeAngle! / (_itemsCount - 1)) * index),
+                    _animation.value * widget.radius),
+                child: Transform.scale(
+                  scale: _animation.value,
+                  child: Transform.rotate(
+                      angle: _animation.value * (math.pi * 2), child: item),
                 ),
               ),
             ),
@@ -227,7 +246,9 @@ class CircularMenuState extends State<CircularMenu>
         child: CircularMenuItem(
           icon: null,
           margin: widget.toggleButtonMargin,
-          color: widget.toggleButtonColor ?? Theme.of(context).primaryColor,
+          color: widget.toggleButtonColor ?? Theme
+              .of(context)
+              .primaryColor,
           padding: (-_animation.value * widget.toggleButtonPadding * 0.5) +
               widget.toggleButtonPadding,
           onTap: () {
@@ -241,7 +262,7 @@ class CircularMenuState extends State<CircularMenu>
           boxShadow: widget.toggleButtonBoxShadow,
           animatedIcon: AnimatedIcon(
             icon:
-                widget.toggleButtonAnimatedIconData, //AnimatedIcons.menu_close,
+            widget.toggleButtonAnimatedIconData, //AnimatedIcons.menu_close,
             size: widget.toggleButtonSize,
             color: widget.toggleButtonIconColor ?? Colors.white,
             progress: _animation,

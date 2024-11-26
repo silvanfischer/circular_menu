@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class CircularMenuItem extends StatelessWidget {
   /// if icon and animatedIcon are passed, icon will be ignored
   final IconData? icon;
+  final ImageProvider? avatar;
   final Color? color;
   final Color? iconColor;
   final VoidCallback onTap;
@@ -20,6 +21,7 @@ class CircularMenuItem extends StatelessWidget {
   final String? badgeLabel;
   final Color? badgeTextColor;
   final Color? badgeColor;
+  final String? label;
 
   /// if animatedIcon and icon are passed, icon will be ignored
   final AnimatedIcon? animatedIcon;
@@ -30,13 +32,14 @@ class CircularMenuItem extends StatelessWidget {
   CircularMenuItem({
     required this.onTap,
     this.icon,
+    this.avatar,
     this.color,
-    this.iconSize = 30,
+    this.iconSize = 70,
     this.boxShadow,
     this.iconColor,
     this.animatedIcon,
-    this.padding = 10,
-    this.margin = 10,
+    this.padding = 4,
+    this.margin = 0,
     this.enableBadge = false,
     this.badgeBottomOffet,
     this.badgeLeftOffet,
@@ -47,42 +50,59 @@ class CircularMenuItem extends StatelessWidget {
     this.badgeLabel,
     this.badgeTextColor,
     this.badgeColor,
-  })  : assert(padding >= 0.0),
+    this.label,
+  })
+      : assert(padding >= 0.0),
         assert(margin >= 0.0);
 
   Widget _buildCircularMenuItem(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.all(margin),
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-        boxShadow: boxShadow ??
-            [
-              BoxShadow(
-                color: color ?? Theme.of(context).primaryColor,
-                blurRadius: 10,
+    return
+      Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.all(margin),
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                boxShadow: boxShadow ??
+                    [
+                      BoxShadow(
+                        color: color ?? Theme
+                            .of(context)
+                            .primaryColor,
+                        blurRadius: 10,
+                      ),
+                    ],
+                shape: BoxShape.circle,
               ),
-            ],
-        shape: BoxShape.circle,
-      ),
-      child: ClipOval(
-        child: Material(
-          color: color ?? Theme.of(context).primaryColor,
-          child: InkWell(
-            child: Padding(
-              padding: EdgeInsets.all(padding),
-              child: animatedIcon == null
-                  ? Icon(
-                      icon,
-                      size: iconSize,
-                      color: iconColor ?? Colors.white,
-                    )
-                  : animatedIcon,
+              child: ClipOval(
+                child: Material(
+                  color: color ?? Theme
+                      .of(context)
+                      .primaryColor,
+                  child: InkWell(
+                    child: Padding(
+                      padding: EdgeInsets.all(padding),
+                      child: avatar == null
+                          ? animatedIcon == null
+                          ? Icon(
+                        icon,
+                        size: iconSize,
+                        color: iconColor ?? Colors.white,
+                      )
+                          : animatedIcon
+                          : CircleAvatar(
+                        backgroundImage: avatar,
+                        radius: iconSize / 2,
+                      ),
+                    ),
+                    onTap: onTap,
+                  ),
+                ),
+              ),
             ),
-            onTap: onTap,
-          ),
-        ),
-      ),
-    );
+            label == null ? SizedBox.shrink() : Text(label!)
+          ]);
   }
 
   Widget _buildCircularMenuItemWithBadge(BuildContext context) {
@@ -155,7 +175,9 @@ class _Badge extends StatelessWidget {
               child: CircleAvatar(
                 maxRadius: radius ?? 10,
                 minRadius: radius ?? 10,
-                backgroundColor: color ?? Theme.of(context).primaryColor,
+                backgroundColor: color ?? Theme
+                    .of(context)
+                    .primaryColor,
                 child: FittedBox(
                   child: Text(
                     label ?? '',
@@ -164,7 +186,10 @@ class _Badge extends StatelessWidget {
                         TextStyle(
                             fontSize: 10,
                             color: textColor ??
-                                Theme.of(context).colorScheme.secondary),
+                                Theme
+                                    .of(context)
+                                    .colorScheme
+                                    .secondary),
                   ),
                 ),
               ),

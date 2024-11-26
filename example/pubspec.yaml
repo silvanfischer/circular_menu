@@ -9,8 +9,10 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^0.1.2
-  circular_menu: ^2.0.0
-  
+  circular_menu:
+    publish_to:none
+    path: /Users/silvanfischer/git/circular_menu
+
 
 # The following section is specific to Flutter.
 flutter:
